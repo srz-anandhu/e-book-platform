@@ -36,10 +36,22 @@ func getOneUser(id int) (username, mail string, createdAt, updatedAt time.Time, 
 	query := ` SELECT username,mail,created_at,updated_at FROM users WHERE id=$1`
 
 	if err := db.QueryRow(query, id).Scan(&username, &mail, &createdAt, &updatedAt); err != nil {
-		return "", "", time.Time{}, time.Time{}, err
+		return "", "", time.Time{}, time.Time{}, fmt.Errorf("get one user failed due to : %v", err)
 	}
 
 	return username, mail, createdAt, updatedAt, nil
+}
+
+// Delete user (Soft Delete)
+func deleteUser(id int) (err error) {
+	query := ` UPDATE users SET is_deleted=$1,deleted_at=$2 WHERE id=$3`
+
+	_, err = db.Exec(query, true, time.Now().UTC(), id)
+	if err != nil {
+		return fmt.Errorf("user deletion failed due to : %v", err)
+	}
+	log.Println("deleted user successfully")
+	return nil
 }
 
 // Author creation
@@ -92,10 +104,15 @@ func main() {
 	// Get one user
 	userName, mail, createdAt, updatedAt, err := getOneUser(99) // UserID
 	if err != nil {
-		log.Printf("Get one user failed due to : %v", err)
+		log.Println(err)
 		return
 	}
 
 	fmt.Printf("Username: %s\n Mail: %s\n CreatedAt: %s\n, UpdatedAt:%s", userName, mail, createdAt, updatedAt)
+
+	// Delete user
+	if err := deleteUser(1); err != nil {
+		log.Println(err)
+	}
 
 }
