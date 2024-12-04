@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -28,6 +29,17 @@ func createUser(mail, username, password, salt string) (userID int, err error) {
 	}
 
 	return userID, nil
+}
+
+// Get one user
+func getOneUser(id int) (username, mail string, createdAt, updatedAt time.Time, err error) {
+	query := ` SELECT username,mail,created_at,updated_at FROM users WHERE id=$1`
+
+	if err := db.QueryRow(query, id).Scan(&username, &mail, &createdAt, &updatedAt); err != nil {
+		return "", "", time.Time{}, time.Time{}, err
+	}
+
+	return username, mail, createdAt, updatedAt, nil
 }
 
 // Author creation
@@ -68,13 +80,22 @@ func main() {
 
 	log.Printf(" User created with ID: %d", userID)
 
-	// Author name
+	// Author name, createdBy (user ID)
 	authorID, err := createAuthor("random2author name", 5)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	
+
 	log.Printf("Author created with ID : %d ", authorID)
+
+	// Get one user
+	userName, mail, createdAt, updatedAt, err := getOneUser(99) // UserID
+	if err != nil {
+		log.Printf("Get one user failed due to : %v", err)
+		return
+	}
+
+	fmt.Printf("Username: %s\n Mail: %s\n CreatedAt: %s\n, UpdatedAt:%s", userName, mail, createdAt, updatedAt)
 
 }
