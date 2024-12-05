@@ -1,24 +1,13 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
-	"time"
+
+	gdb "ebook/pkg/database"
+	"ebook/pkg/repo"
 
 	_ "github.com/lib/pq"
 )
-
-const (
-	user     = "postgres"
-	password = "password"
-	host     = "localhost"
-	port     = 5432
-	dbname   = "ebook"
-)
-
-var db *sql.DB
-var err error
 
 // User creation
 // func createUser(mail, username, password, salt string) (userID int, err error) {
@@ -55,24 +44,24 @@ var err error
 // }
 
 // Update user
-func updateUser(id int, mail, password string) (err error) {
-	query := ` UPDATE users SET mail=$1,password=$2,updated_at=$3 WHERE id=$4`
+// func updateUser(id int, mail, password string) (err error) {
+// 	query := ` UPDATE users SET mail=$1,password=$2,updated_at=$3 WHERE id=$4`
 
-	result, err := db.Exec(query, mail, password, time.Now().UTC(), id)
-	if err != nil {
-		return fmt.Errorf("user updation failed due to : %v", err)
-	}
+// 	result, err := db.Exec(query, mail, password, time.Now().UTC(), id)
+// 	if err != nil {
+// 		return fmt.Errorf("user updation failed due to : %v", err)
+// 	}
 
-	isAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("no affected rows due to : %v", err)
-	}
-	if isAffected == 0 {
-		return fmt.Errorf("no user with ID: %d", id)
-	}
-	log.Println("user updated successfully")
-	return nil
-}
+// 	isAffected, err := result.RowsAffected()
+// 	if err != nil {
+// 		return fmt.Errorf("no affected rows due to : %v", err)
+// 	}
+// 	if isAffected == 0 {
+// 		return fmt.Errorf("no user with ID: %d", id)
+// 	}
+// 	log.Println("user updated successfully")
+// 	return nil
+// }
 
 // Author creation
 // func createAuthor(name string, createdBy int) (authorID int, err error) {
@@ -86,22 +75,28 @@ func updateUser(id int, mail, password string) (err error) {
 // }
 
 func main() {
-	// postgres://postgres:password@localhost:5432/ebook?sslmode=disable
-	connectionStr := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", user, password, host, port, dbname)
 
-	db, err = sql.Open("postgres", connectionStr)
+	db, err := gdb.ConnectDB()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer db.Close()
+	u := repo.User{
 
-	// connection checking
-	if err = db.Ping(); err != nil {
-		log.Fatal(err)
+		Username: "test4user",
+		Mail:     "test4@gmail.com",
+		Password: "testpassword",
+		Salt:     "testsalt",
 	}
-
-	log.Println("Connected to db successfully...")
+	if err := db.AutoMigrate(&u); err != nil {
+		log.Printf("user migration failed : %v", err)
+	}
+	userID, err := u.CreateUser(db)
+	if err != nil {
+		log.Printf("user creation failed due to : %v", err)
+		return
+	}
+	log.Printf("user created with ID: %d", userID)
 
 	// Email, Username, Password, Salt
 	// userID, err := createUser("random2@gmail.com", "random2Username", "random2Password", "random2Salt")
@@ -137,8 +132,8 @@ func main() {
 
 	// Update User
 	// userID, Email, Password
-	if err := updateUser(5, "updatedmail@gmail.com", "updatedPassword"); err != nil {
-		log.Println(err)
-	}
+	// if err := updateUser(99, "updatedmail@gmail.com", "updatedPassword"); err != nil {
+	// 	log.Println(err)
+	// }
 
 }
