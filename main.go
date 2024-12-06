@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	gdb "ebook/pkg/database"
@@ -10,71 +9,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// User creation
-// func createUser(mail, username, password, salt string) (userID int, err error) {
-// 	query := ` INSERT INTO users(mail,username,password,salt) VALUES($1,$2,$3,$4) RETURNING id `
-
-// 	if err := db.QueryRow(query, mail, username, password, salt).Scan(&userID); err != nil {
-// 		return 0, fmt.Errorf("user creation failed due to : %v", err)
-// 	}
-
-// 	return userID, nil
-// }
-
-// Get one user
-// func getOneUser(id int) (username, mail string, createdAt, updatedAt time.Time, err error) {
-// 	query := ` SELECT username,mail,created_at,updated_at FROM users WHERE id=$1`
-
-// 	if err := db.QueryRow(query, id).Scan(&username, &mail, &createdAt, &updatedAt); err != nil {
-// 		return "", "", time.Time{}, time.Time{}, fmt.Errorf("get one user failed due to : %v", err)
-// 	}
-
-// 	return username, mail, createdAt, updatedAt, nil
-// }
-
-// Delete user (Soft Delete)
-// func deleteUser(id int) (err error) {
-// 	query := ` UPDATE users SET is_deleted=$1,deleted_at=$2 WHERE id=$3`
-
-// 	_, err = db.Exec(query, true, time.Now().UTC(), id)
-// 	if err != nil {
-// 		return fmt.Errorf("user deletion failed due to : %v", err)
-// 	}
-// 	log.Println("deleted user successfully")
-// 	return nil
-// }
-
-// Update user
-// func updateUser(id int, mail, password string) (err error) {
-// 	query := ` UPDATE users SET mail=$1,password=$2,updated_at=$3 WHERE id=$4`
-
-// 	result, err := db.Exec(query, mail, password, time.Now().UTC(), id)
-// 	if err != nil {
-// 		return fmt.Errorf("user updation failed due to : %v", err)
-// 	}
-
-// 	isAffected, err := result.RowsAffected()
-// 	if err != nil {
-// 		return fmt.Errorf("no affected rows due to : %v", err)
-// 	}
-// 	if isAffected == 0 {
-// 		return fmt.Errorf("no user with ID: %d", id)
-// 	}
-// 	log.Println("user updated successfully")
-// 	return nil
-// }
-
-// Author creation
-// func createAuthor(name string, createdBy int) (authorID int, err error) {
-// 	query := ` INSERT INTO authors(name,created_by) VALUES($1,$2) RETURNING id`
-
-// 	if err := db.QueryRow(query, name, createdBy).Scan(&authorID); err != nil {
-// 		return 0, fmt.Errorf("author creation failed due to : %v", err)
-// 	}
-
-// 	return authorID, nil
-// }
-
 func main() {
 
 	db, err := gdb.ConnectDB()
@@ -82,52 +16,37 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// migrating models(User)
+	if err := gdb.AutoMigrateModels(db); err != nil {
+		log.Fatal(err)
+	}
 	// User creation
-	u := repo.User{
+	// u := repo.User{
 
-		Username: "test4user",
-		Mail:     "test4@gmail.com",
-		Password: "testpassword",
-		Salt:     "testsalt",
-	}
-	if err := db.AutoMigrate(&u); err != nil {
-		log.Printf("user migration failed : %v", err)
-	}
-	userID, err := u.CreateUser(db)
-	if err != nil {
-		log.Printf("user creation failed due to : %v", err)
-		return
-	}
-	log.Printf("user created with ID: %d", userID)
+	// 	Username: "test5user",
+	// 	Mail:     "test5@gmail.com",
+	// 	Password: "testpassword",
+	// 	Salt:     "testsalt",
+	// }
 
-	// Get One user
-
-	user, err := repo.GetOneUser(db, 13)
-	if err != nil {
-		log.Printf("cant get user due to : %v", err)
-	}
-	fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
-
-	// Author name, createdBy (user ID)
-	// authorID, err := createAuthor("random2author name", 5)
+	// userID, err := u.CreateUser(db)
 	// if err != nil {
-	// 	log.Println(err)
+	// 	log.Printf("user creation failed due to : %v", err)
 	// 	return
 	// }
+	// log.Printf("user created with ID: %d", userID)
 
-	// log.Printf("Author created with ID : %d ", authorID)
-
-	// fmt.Printf("Username: %s\n Mail: %s\n CreatedAt: %s\n, UpdatedAt:%s", userName, mail, createdAt, updatedAt)
-
-	// Delete user
-	// if err := deleteUser(1); err != nil {
-	// 	log.Println(err)
+	// Get One user
+	// user, err := repo.GetOneUser(db, 18)
+	// if err != nil {
+	// 	log.Printf("cant get user due to : %v", err)
+	// 	return
 	// }
+	// fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
 
-	// Update User
-	// userID, Email, Password
-	// if err := updateUser(99, "updatedmail@gmail.com", "updatedPassword"); err != nil {
-	// 	log.Println(err)
-	// }
+	// User Deletion (Soft delete)
+	if err := repo.DeleteUser(db, 13); err != nil {
+		log.Printf("cant delete user due to : %v", err)
+	}
 
 }
