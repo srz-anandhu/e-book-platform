@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	gdb "ebook/pkg/database"
@@ -81,6 +82,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// User creation
 	u := repo.User{
 
 		Username: "test4user",
@@ -98,14 +100,13 @@ func main() {
 	}
 	log.Printf("user created with ID: %d", userID)
 
-	// Email, Username, Password, Salt
-	// userID, err := createUser("random2@gmail.com", "random2Username", "random2Password", "random2Salt")
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
+	// Get One user
 
-	// log.Printf(" User created with ID: %d", userID)
+	user, err := repo.GetOneUser(db, 13)
+	if err != nil {
+		log.Printf("cant get user due to : %v", err)
+	}
+	fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
 
 	// Author name, createdBy (user ID)
 	// authorID, err := createAuthor("random2author name", 5)
@@ -115,13 +116,6 @@ func main() {
 	// }
 
 	// log.Printf("Author created with ID : %d ", authorID)
-
-	// Get one user
-	// userName, mail, createdAt, updatedAt, err := getOneUser(99) // UserID
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return
-	// }
 
 	// fmt.Printf("Username: %s\n Mail: %s\n CreatedAt: %s\n, UpdatedAt:%s", userName, mail, createdAt, updatedAt)
 

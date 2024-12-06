@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -31,4 +32,15 @@ func (userRepo *User) CreateUser(db *gorm.DB) (userID int64, err error) {
 	}
 
 	return userRepo.ID, nil
+}
+
+func GetOneUser(db *gorm.DB, id int64) (user *User, err error) {
+
+	result := db.First(&user, id)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, errors.New("user not found with id")
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
 }
