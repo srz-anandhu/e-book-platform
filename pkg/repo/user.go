@@ -16,11 +16,11 @@ type BaseModel struct {
 }
 
 type User struct {
-	ID       int64  `gorm:"primaryKey"`
-	Mail     string `gorm:"column:mail;unique;not null"`
-	Username string `gorm:"column:username;unique;not null"`
-	Password string `gorm:"column:password;not null"`
-	Salt     string `gorm:"column:salt;not null"`
+	ID        int64  `gorm:"primaryKey"`
+	Mail      string `gorm:"column:mail;unique;not null"`
+	Username  string `gorm:"column:username;unique;not null"`
+	Password  string `gorm:"column:password;not null"`
+	Salt      string `gorm:"column:salt;not null"`
 	IsDeleted bool   `gorm:"column:is_deleted;default:false"`
 	BaseModel
 }
@@ -35,11 +35,17 @@ func (userModel *User) CreateUser(db *gorm.DB) (userID int64, err error) {
 	return userModel.ID, nil
 }
 
-func GetOneUser(db *gorm.DB, id int64) (user *User, err error) {
-
+func GetOneUser(db *gorm.DB, id int64) (*User, error) {
+	user := &User{}
 	//result := db.Where("id=?", id).First(&user)
-	result := db.First(&user, id).Where("is_deleted=?", false)
+	result := db.Where("id = ? AND is_deleted = ?", id, false).First(user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		// check for user already deleted
+		var checkDeleteUser *User
+		checkResult := db.Unscoped().Where("id = ?", id).First(&checkDeleteUser)
+		if checkResult.Error == nil && checkDeleteUser.IsDeleted {
+			return nil, fmt.Errorf("user with ID: %d already deleted", id)
+		}
 		return nil, fmt.Errorf("user not found with ID=%d due to : %v", id, result.Error)
 	} else if result.Error != nil {
 		return nil, result.Error
