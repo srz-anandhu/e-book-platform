@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	gdb "ebook/pkg/database"
@@ -38,16 +37,16 @@ func main() {
 	// log.Printf("user created with ID: %d", userID)
 
 	// Get One user
-	user, err := repo.GetOneUser(db, 13)
-	if err != nil {
-		log.Printf("cant get user due to : %v", err)
-		return
-	}
-	fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
+	// user, err := repo.GetOneUser(db, 13)
+	// if err != nil {
+	// 	log.Printf("cant get user due to : %v", err)
+	// 	return
+	// }
+	//fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
 
 	// User Deletion (Soft delete)
-	// if err := repo.DeleteUser(db, 13); err != nil {
-	// 	log.Printf("cant delete user due to : %v", err)
-	// }
+	if err := repo.DeleteUser(db, 18); err != nil {
+		log.Printf("cant delete user due to : %v", err)
+	}
 
 }

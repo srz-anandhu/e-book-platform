@@ -3,6 +3,7 @@ package repo
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -54,19 +55,23 @@ func GetOneUser(db *gorm.DB, id int64) (*User, error) {
 }
 
 func DeleteUser(db *gorm.DB, id int64) (err error) {
-	//var userModel *User
-	isDeleted := map[string]interface{}{
-		"is_deleted": true,
-	}
-	result := db.Table("users").Where("id=?", id).Updates(isDeleted)
+	user := &User{}
+
+	result := db.Where("id=?", id).Delete(user)
 
 	if errors.Is(result.Error, gorm.ErrInvalidData) {
-		return err
+		return result.Error
 	} else if result.Error != nil {
-		return err
-	} else {
-		fmt.Println("user deleted successfully")
+		return result.Error
 	}
 
+	// update is_deleted field to true
+	updateResult := db.Table("users").Where("id=?", id).Update("is_deleted", true)
+	if updateResult.Error != nil {
+		return updateResult.Error
+	}
+
+	log.Println("user deleted successfully...")
 	return nil
 }
+
