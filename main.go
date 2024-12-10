@@ -24,8 +24,8 @@ func main() {
 	// User creation
 	// u := repo.User{
 
-	// 	Username: "test5user",
-	// 	Mail:     "test5@gmail.com",
+	// 	Username: "test444user",
+	// 	Mail:     "test555@gmail.com",
 	// 	Password: "testpassword",
 	// 	Salt:     "testsalt",
 	// }
@@ -38,12 +38,12 @@ func main() {
 	// log.Printf("user created with ID: %d", userID)
 
 	// Get One user
-	user, err := repo.GetOneUser(db, 5)
-	if err != nil {
-		log.Printf("cant get user due to : %v", err)
-		return
-	}
-	fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
+	// user, err := repo.GetOneUser(db, 5)
+	// if err != nil {
+	// 	log.Printf("cant get user due to : %v", err)
+	// 	return
+	// }
+	//fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
 
 	// User Deletion (Soft delete)
 	// if err := repo.DeleteUser(db, 18); err != nil {
@@ -55,5 +55,15 @@ func main() {
 
 	// 	log.Printf("updation failed due to : %v", err)
 	// }
+
+	// Get all users
+	users, err := repo.GetAllUsers(db)
+	if err != nil {
+		log.Printf("can't get users due to : %v", err)
+	}
+
+	for _, user := range users {
+		fmt.Printf("ID: %d\n UserName: %s\n Email: %s\n CreatedAt: %s\n UpdatedAt: %s\n", user.ID, user.Username, user.Mail, user.CreatedAt, user.UpdatedAt)
+	}
 
 }

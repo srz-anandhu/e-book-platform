@@ -42,7 +42,7 @@ func GetOneUser(db *gorm.DB, id int64) (*User, error) {
 	result := db.Unscoped().Where("id = ?", id).First(user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 
-	return nil, fmt.Errorf("user not found with ID=%d due to : %v", id, result.Error)
+		return nil, fmt.Errorf("user not found with ID=%d due to : %v", id, result.Error)
 
 	} else if result.Error != nil {
 		return nil, result.Error
@@ -92,4 +92,15 @@ func UpdateUser(db *gorm.DB, id int64, newPassword string) error {
 
 	log.Println("user password updated successfully..")
 	return nil
+}
+
+func GetAllUsers(db *gorm.DB) ([]*User, error) {
+	var user []*User
+	result := db.Where("is_deleted", false).Find(&user)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return user, nil
 }
