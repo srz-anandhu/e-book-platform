@@ -38,19 +38,20 @@ func (userModel *User) CreateUser(db *gorm.DB) (userID int64, err error) {
 
 func GetOneUser(db *gorm.DB, id int64) (*User, error) {
 	user := &User{}
-	//result := db.Where("id=?", id).First(&user)
-	result := db.Where("id = ? AND is_deleted = ?", id, false).First(user)
+
+	result := db.Unscoped().Where("id = ?", id).First(user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		// check for user already deleted
-		var checkDeleteUser User
-		checkResult := db.Unscoped().Where("id = ?", id).First(&checkDeleteUser)
-		if checkResult.Error == nil && checkDeleteUser.IsDeleted {
-			return nil, fmt.Errorf("user with ID: %d already deleted", id)
-		}
-		return nil, fmt.Errorf("user not found with ID=%d due to : %v", id, result.Error)
+
+	return nil, fmt.Errorf("user not found with ID=%d due to : %v", id, result.Error)
+
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
+
+	if user.IsDeleted {
+		return nil, fmt.Errorf("user with ID : %d already deleted", id)
+	}
+
 	return user, nil
 }
 
@@ -77,7 +78,7 @@ func DeleteUser(db *gorm.DB, id int64) error {
 
 func UpdateUser(db *gorm.DB, id int64, newPassword string) error {
 	result := db.Table("users").Where("id=? AND is_deleted=?", id, false).Updates(map[string]interface{}{
-		"password": newPassword,
+		"password":   newPassword,
 		"updated_at": time.Now().UTC(),
 	})
 
@@ -88,8 +89,7 @@ func UpdateUser(db *gorm.DB, id int64, newPassword string) error {
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("no active user found with ID %d to update", id)
 	}
-	
+
 	log.Println("user password updated successfully..")
 	return nil
 }
-
