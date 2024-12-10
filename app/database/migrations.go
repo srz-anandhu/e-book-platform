@@ -1,7 +1,7 @@
 package database
 
 import (
-	"ebook/pkg/repo"
+	"ebook/app/repo"
 	"fmt"
 	"log"
 

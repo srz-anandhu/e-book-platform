@@ -42,7 +42,7 @@ func GetOneUser(db *gorm.DB, id int64) (*User, error) {
 	result := db.Where("id = ? AND is_deleted = ?", id, false).First(user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		// check for user already deleted
-		var checkDeleteUser *User
+		var checkDeleteUser User
 		checkResult := db.Unscoped().Where("id = ?", id).First(&checkDeleteUser)
 		if checkResult.Error == nil && checkDeleteUser.IsDeleted {
 			return nil, fmt.Errorf("user with ID: %d already deleted", id)
@@ -54,7 +54,7 @@ func GetOneUser(db *gorm.DB, id int64) (*User, error) {
 	return user, nil
 }
 
-func DeleteUser(db *gorm.DB, id int64) (err error) {
+func DeleteUser(db *gorm.DB, id int64) error {
 	user := &User{}
 
 	result := db.Where("id=?", id).Delete(user)
@@ -72,6 +72,24 @@ func DeleteUser(db *gorm.DB, id int64) (err error) {
 	}
 
 	log.Println("user deleted successfully...")
+	return nil
+}
+
+func UpdateUser(db *gorm.DB, id int64, newPassword string) error {
+	result := db.Table("users").Where("id=? AND is_deleted=?", id, false).Updates(map[string]interface{}{
+		"password": newPassword,
+		"updated_at": time.Now().UTC(),
+	})
+
+	if result.Error != nil {
+		return result.Error
+	}
+	// Check if any rows were updated
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no active user found with ID %d to update", id)
+	}
+	
+	log.Println("user password updated successfully..")
 	return nil
 }
 

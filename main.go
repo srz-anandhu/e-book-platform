@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	gdb "ebook/pkg/database"
-	"ebook/pkg/repo"
+	gdb "ebook/app/database"
+	"ebook/app/repo"
 
 	_ "github.com/lib/pq"
 )
@@ -45,8 +45,14 @@ func main() {
 	//fmt.Printf(" ID: %d\n Username: %s\n Email: %s\n Password: %s\n CreatedAt: %s\n UpdatedAt: %s", user.ID, user.Username, user.Mail, user.Password, user.CreatedAt, user.UpdatedAt)
 
 	// User Deletion (Soft delete)
-	if err := repo.DeleteUser(db, 18); err != nil {
-		log.Printf("cant delete user due to : %v", err)
-	}
+	// if err := repo.DeleteUser(db, 18); err != nil {
+	// 	log.Printf("cant delete user due to : %v", err)
+	// }
+
+	// User Updtion
+	if err := repo.UpdateUser(db, 5, "updatedPassword"); err != nil {
+	
+		log.Printf("updation failed due to : %v", err)
+	} 
 
 }
