@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	gdb "ebook/app/database"
-	"ebook/app/repo"
 
 	_ "github.com/lib/pq"
 )
@@ -57,13 +55,13 @@ func main() {
 	// }
 
 	// Get all users
-	users, err := repo.GetAllUsers(db)
-	if err != nil {
-		log.Printf("can't get users due to : %v", err)
-	}
+	// users, err := repo.GetAllUsers(db)
+	// if err != nil {
+	// 	log.Printf("can't get users due to : %v", err)
+	// }
 
-	for _, user := range users {
-		fmt.Printf("ID: %d\n UserName: %s\n Email: %s\n CreatedAt: %s\n UpdatedAt: %s\n", user.ID, user.Username, user.Mail, user.CreatedAt, user.UpdatedAt)
-	}
+	// for _, user := range users {
+	// 	fmt.Printf("ID: %d\n UserName: %s\n Email: %s\n CreatedAt: %s\n UpdatedAt: %s\n", user.ID, user.Username, user.Mail, user.CreatedAt, user.UpdatedAt)
+	// }
 
 }
