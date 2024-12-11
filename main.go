@@ -86,10 +86,17 @@ func main() {
 	// log.Printf("author created with ID : %d", authorID)
 
 	// GetOneAuthor
-	author, err := repo.GetOneAuthor(db, 8)
+	// author, err := repo.GetOneAuthor(db, 8)
+	// if err != nil {
+	// 	log.Printf("can't get author due to : %v", err)
+	// 	return
+	// }
+	//fmt.Printf(" ID : %d\n Name : %s\n Status : %t\n CreatedAt : %s\n CreatedBy : %d\n UpdatedAt : %s\n UpdatedBy : %d\n", author.ID, author.Name, author.Status, author.CreatedAt, author.CreatedBy, author.UpdatedAt, author.UpdatedBy)
+
+	err = repo.DeleteAuthor(db, 6, 18)
+
 	if err != nil {
-		log.Printf("can't get author due to : %v", err)
-		return
+		fmt.Printf("errrrr %v", err)
 	}
-	fmt.Printf(" ID : %d\n Name : %s\n Status : %t\n CreatedAt : %s\n CreatedBy : %d\n UpdatedAt : %s\n UpdatedBy : %d\n", author.ID, author.Name, author.Status, author.CreatedAt, author.CreatedBy, author.UpdatedAt, author.UpdatedBy)
+
 }
