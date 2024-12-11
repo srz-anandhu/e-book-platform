@@ -4,6 +4,7 @@ import (
 	"log"
 
 	gdb "ebook/app/database"
+	"ebook/app/repo"
 
 	_ "github.com/lib/pq"
 )
@@ -63,5 +64,19 @@ func main() {
 	// for _, user := range users {
 	// 	fmt.Printf("ID: %d\n UserName: %s\n Email: %s\n CreatedAt: %s\n UpdatedAt: %s\n", user.ID, user.Username, user.Mail, user.CreatedAt, user.UpdatedAt)
 	// }
+
+	// Author Creation
+	a := repo.Author{
+		Name: "testauthor1",
+		CreatedBy: 21, // UserID
+		UpdatedBy: 21, // UserID
+	}
+
+	authorID, err := a.CreateAuthor(db)
+	if err != nil {
+		log.Printf("author creation failed due to : %v", err)
+		return
+	}
+	log.Printf("author created with ID : %d", authorID)
 
 }
