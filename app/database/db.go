@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -16,7 +17,7 @@ const (
 	dbname   = "ebook"
 )
 
-func ConnectDB() (*gorm.DB, error) {
+func ConnectDB() (*gorm.DB, *sql.DB, error) {
 	// postgres://postgres:password@localhost:5432/ebook?sslmode=disable
 	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", user, password, host, port, dbname)
 	gDb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -36,5 +37,5 @@ func ConnectDB() (*gorm.DB, error) {
 	}
 
 	log.Println("Connected to db successfully...")
-	return gDb, nil
+	return gDb, sqlDB, nil
 }

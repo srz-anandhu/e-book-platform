@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	gdb "ebook/app/database"
@@ -11,7 +12,7 @@ import (
 
 func main() {
 
-	db, err := gdb.ConnectDB()
+	db, sqlDb, err := gdb.ConnectDB()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -20,6 +21,11 @@ func main() {
 	if err := gdb.AutoMigrateModels(db); err != nil {
 		log.Fatal(err)
 	}
+
+	defer func() {
+		sqlDb.Close()
+		fmt.Println("\n Db connection closed..")
+	}()
 	// User creation
 	// u := repo.User{
 
@@ -66,17 +72,24 @@ func main() {
 	// }
 
 	// Author Creation
-	a := repo.Author{
-		Name: "testauthor1",
-		CreatedBy: 21, // UserID
-		UpdatedBy: 21, // UserID
-	}
+	// a := repo.Author{
+	// 	Name: "testauthor333",
+	// 	CreatedBy: 18, // UserID
+	// 	UpdatedBy: 21, // UserID
+	// }
 
-	authorID, err := a.CreateAuthor(db)
+	// authorID, err := a.CreateAuthor(db)
+	// if err != nil {
+	// 	log.Printf("author creation failed due to : %v", err)
+	// 	return
+	// }
+	// log.Printf("author created with ID : %d", authorID)
+
+	// GetOneAuthor
+	author, err := repo.GetOneAuthor(db, 8)
 	if err != nil {
-		log.Printf("author creation failed due to : %v", err)
+		log.Printf("can't get author due to : %v", err)
 		return
 	}
-	log.Printf("author created with ID : %d", authorID)
-
+	fmt.Printf(" ID : %d\n Name : %s\n Status : %t\n CreatedAt : %s\n CreatedBy : %d\n UpdatedAt : %s\n UpdatedBy : %d\n", author.ID, author.Name, author.Status, author.CreatedAt, author.CreatedBy, author.UpdatedAt, author.UpdatedBy)
 }
