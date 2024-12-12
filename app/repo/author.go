@@ -54,15 +54,33 @@ func DeleteAuthor(db *gorm.DB, id, userID int64) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	// Update status to false
+	// Update status to false and deleted by
 	updates := map[string]interface{}{
-		"status" : false,
-		"deleted_by" : userID,
+		"status":     false,
+		"deleted_by": userID,
 	}
 	updateResult := db.Table("authors").Where("id=?", id).Updates(updates)
 	if updateResult.Error != nil {
 		return updateResult.Error
 	}
 	log.Println("Author deleted successfully")
+	return nil
+}
+
+func UpdateAuthor(db *gorm.DB, newName string, id, userID int64) error {
+	result := db.Table("authors").Where("id=?", id).Updates(map[string]interface{}{
+		"name":       newName,
+		"updated_by": userID,
+		"updated_at": time.Now().UTC(),
+	})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no active author found with ID : %d to update", id)
+	}
+	log.Printf(" Author name updated successfully by user : %d", userID)
 	return nil
 }

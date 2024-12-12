@@ -93,10 +93,14 @@ func main() {
 	// }
 	//fmt.Printf(" ID : %d\n Name : %s\n Status : %t\n CreatedAt : %s\n CreatedBy : %d\n UpdatedAt : %s\n UpdatedBy : %d\n", author.ID, author.Name, author.Status, author.CreatedAt, author.CreatedBy, author.UpdatedAt, author.UpdatedBy)
 
-	err = repo.DeleteAuthor(db, 6, 18)
+	// err = repo.DeleteAuthor(db, 6, 18) // authorID, userID
 
-	if err != nil {
-		fmt.Printf("errrrr %v", err)
-	}
+	// if err != nil {
+	// 	fmt.Printf("can't delete author due to : %v", err)
+	// }
 
+	 err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
+	 if err != nil {
+		fmt.Printf("can't update author due to : %v", err)
+	 }
 }
