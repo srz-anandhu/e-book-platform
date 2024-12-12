@@ -84,3 +84,12 @@ func UpdateAuthor(db *gorm.DB, newName string, id, userID int64) error {
 	log.Printf(" Author name updated successfully by user : %d", userID)
 	return nil
 }
+
+func GetAllAuthors(db *gorm.DB) ([]*Author, error) {
+	var authors []*Author
+	result := db.Where("status=?", true).Find(&authors)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return authors, nil
+}

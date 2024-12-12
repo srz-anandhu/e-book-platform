@@ -99,8 +99,18 @@ func main() {
 	// 	fmt.Printf("can't delete author due to : %v", err)
 	// }
 
-	 err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
-	 if err != nil {
-		fmt.Printf("can't update author due to : %v", err)
-	 }
+	//  err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
+	//  if err != nil {
+	// 	fmt.Printf("can't update author due to : %v", err)
+	//  }
+
+	authors, err := repo.GetAllAuthors(db)
+	if err != nil {
+		log.Printf("can't get authors due to : %v", err)
+		return
+	}
+
+	for _, author := range authors {
+		fmt.Printf(" ID : %d\n Author Name : %s\n CreatedBy : %d\n CreatedAt : %s\n UpdatedAt : %s\n", author.ID, author.Name, author.CreatedBy, author.CreatedAt, author.UpdatedAt)
+	}
 }
