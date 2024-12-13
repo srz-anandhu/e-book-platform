@@ -2,6 +2,8 @@ package repo
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -35,4 +37,25 @@ func GetOneBook(db *gorm.DB, id int64) (*Book, error) {
 	}
 
 	return book, nil
+}
+
+func UpdateBook(db *gorm.DB, id int64, title, content string, userID, authorID int64, status int) error {
+	result := db.Table("books").Where("id=? AND status IN (1,2)", id).Updates(map[string]interface{}{
+		"title":      title,
+		"content":    content,
+		"author_id":  authorID,
+		"updated_by": userID,
+		"status":     status,
+		"updated_at": time.Now().UTC(),
+	})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("no book found with ID : %d to update", id)
+	}
+	log.Printf("Book updated successfully by user : %d", userID)
+	return nil
 }

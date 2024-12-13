@@ -98,7 +98,8 @@ func main() {
 	// if err != nil {
 	// 	fmt.Printf("can't delete author due to : %v", err)
 	// }
-
+	
+	// Update author
 	// err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
 	// if err != nil {
 	// 	fmt.Printf("can't update author due to : %v", err)
@@ -132,11 +133,20 @@ func main() {
 	// 	return
 	// }
 	// fmt.Printf("book created with ID : %d", bookID)
+	
+	// Get One Book
+	// book, err := repo.GetOneBook(db, 3)
+	// if err != nil {
+	// 	log.Printf("can't find book due to : %v", err)
+	// 	return
+	// }
+	//fmt.Printf(" ID: %d\n Title: %s\n Content: %s\n AuthorID: %d\n CreatedBy: %d\n CreatedAt: %s\n UpdatedAt: %s\n UpdatedBy: %d\n DeletedAt: %v\n DeletedBy: %d", book.ID, book.Title, book.Content, book.AuthorID, book.CreatedBy, book.CreatedAt, book.UpdatedAt, book.UpdatedBy, book.DeletedAt, book.DeletedBy)
 
-	book, err := repo.GetOneBook(db, 3)
+	// Update Book
+	err = repo.UpdateBook(db, 3, "updated title", "updated content", 18, 6, 1) // userID, authorID, status
 	if err != nil {
-		log.Printf("can't find book due to : %v", err)
-		return
+		log.Printf("can't update book due to : %v", err)
 	}
-	fmt.Printf(" ID: %d\n Title: %s\n Content: %s\n AuthorID: %d\n CreatedBy: %d\n CreatedAt: %s\n UpdatedAt: %s\n UpdatedBy: %d\n DeletedAt: %v\n DeletedBy: %d", book.ID, book.Title, book.Content, book.AuthorID, book.CreatedBy, book.CreatedAt, book.UpdatedAt, book.UpdatedBy, book.DeletedAt, book.DeletedBy)
+
 }
+
