@@ -15,6 +15,9 @@ func AutoMigrateModels(db *gorm.DB) error {
 	if err := db.AutoMigrate(&repo.Author{}); err != nil {
 		return fmt.Errorf("author model migration failed due to : %v", err)
 	}
+	if err := db.AutoMigrate(&repo.Book{}); err != nil {
+		return fmt.Errorf("book model migration failed due to : %v", err)
+	}
 	log.Println("migration successful..")
 	return nil
 }
