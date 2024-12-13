@@ -17,7 +17,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// migrating models(User)
+	// migrating models(User, Author, Book)
 	if err := gdb.AutoMigrateModels(db); err != nil {
 		log.Fatal(err)
 	}

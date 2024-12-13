@@ -59,3 +59,30 @@ func UpdateBook(db *gorm.DB, id int64, title, content string, userID, authorID i
 	log.Printf("Book updated successfully by user : %d", userID)
 	return nil
 }
+
+func DeleteBook(db *gorm.DB, id, userID int64) error {
+	book := &Book{}
+	result := db.Where("id=? AND status IN (1,2)", id).Delete(book)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	updateResult := db.Where("id=?", id).Updates(map[string]interface{}{
+		"status":     3,
+		"deleted_by": userID,
+	})
+	if updateResult.Error != nil {
+		return updateResult.Error
+	}
+	log.Printf("book deleted successfully by user : %d", userID)
+	return nil
+}
+
+func GetAllBooks(db *gorm.DB) ([]*Book, error) {
+	var books []*Book
+	result := db.Where("status IN (1,2)").Find(&books)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return books, nil
+}
