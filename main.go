@@ -86,23 +86,23 @@ func main() {
 	// log.Printf("author created with ID : %d", authorID)
 
 	// GetOneAuthor
-	author, err := repo.GetOneAuthor(db, 10)
-	if err != nil {
-		log.Printf("can't get author due to : %v", err)
-		return
-	}
-	fmt.Printf(" ID : %d\n Name : %s\n Status : %t\n CreatedAt : %s\n CreatedBy : %d\n UpdatedAt : %s\n UpdatedBy : %d\n", author.ID, author.Name, author.Status, author.CreatedAt, author.CreatedBy, author.UpdatedAt, author.UpdatedBy)
+	// author, err := repo.GetOneAuthor(db, 10)
+	// if err != nil {
+	// 	log.Printf("can't get author due to : %v", err)
+	// 	return
+	// }
+	// fmt.Printf(" ID : %d\n Name : %s\n Status : %t\n CreatedAt : %s\n CreatedBy : %d\n UpdatedAt : %s\n UpdatedBy : %d\n", author.ID, author.Name, author.Status, author.CreatedAt, author.CreatedBy, author.UpdatedAt, author.UpdatedBy)
 
-	err = repo.DeleteAuthor(db, 6, 18) // authorID, userID
+	// err = repo.DeleteAuthor(db, 6, 18) // authorID, userID
 
-	if err != nil {
-		fmt.Printf("can't delete author due to : %v", err)
-	}
+	// if err != nil {
+	// 	fmt.Printf("can't delete author due to : %v", err)
+	// }
 
-	err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
-	if err != nil {
-		fmt.Printf("can't update author due to : %v", err)
-	}
+	// err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
+	// if err != nil {
+	// 	fmt.Printf("can't update author due to : %v", err)
+	// }
 
 	// authors, err := repo.GetAllAuthors(db)
 	// if err != nil {
@@ -113,4 +113,30 @@ func main() {
 	// for _, author := range authors {
 	// 	fmt.Printf(" ID : %d\n Author Name : %s\n CreatedBy : %d\n CreatedAt : %s\n UpdatedAt : %s\n", author.ID, author.Name, author.CreatedBy, author.CreatedAt, author.UpdatedAt)
 	// }
+
+
+	// Book Creation
+	// b := repo.Book{
+	// 	Title:    "testbook",
+	// 	Content:  "testbook content",
+	// 	AuthorID: 8,
+	// 	Status:   2,
+	// 	BaseModel: repo.BaseModel{
+	// 		CreatedBy: 18,
+	// 	},
+	// }
+
+	// bookID, err := b.CreateBook(db)
+	// if err != nil {
+	// 	log.Printf("can't create book due to : %v", err)
+	// 	return
+	// }
+	// fmt.Printf("book created with ID : %d", bookID)
+
+	book, err := repo.GetOneBook(db, 3)
+	if err != nil {
+		log.Printf("can't find book due to : %v", err)
+		return
+	}
+	fmt.Printf(" ID: %d\n Title: %s\n Content: %s\n AuthorID: %d\n CreatedBy: %d\n CreatedAt: %s\n UpdatedAt: %s\n UpdatedBy: %d\n DeletedAt: %v\n DeletedBy: %d", book.ID, book.Title, book.Content, book.AuthorID, book.CreatedBy, book.CreatedAt, book.UpdatedAt, book.UpdatedBy, book.DeletedAt, book.DeletedBy)
 }

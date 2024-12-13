@@ -1,6 +1,10 @@
 package repo
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 type Book struct {
 	ID       int64  `gorm:"primaryKey"`
@@ -17,4 +21,18 @@ func (bookModel *Book) CreateBook(db *gorm.DB) (bookID int64, err error) {
 		return 0, result.Error
 	}
 	return bookModel.ID, nil
+}
+
+func GetOneBook(db *gorm.DB, id int64) (*Book, error) {
+	book := &Book{}
+	result := db.Unscoped().Where("id=? AND status IN (1,2)", id).First(book)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	if book.Status == 3 {
+		return nil, fmt.Errorf("book was deleted")
+	}
+
+	return book, nil
 }
