@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -10,9 +9,9 @@ import (
 )
 
 type Author struct {
-	ID        int64          `gorm:"primaryKey"`
-	Name      string         `gorm:"column:name"`
-	Status    bool           `gorm:"column:status;default:true"` // false if deleted
+	ID     int64  `gorm:"primaryKey"`
+	Name   string `gorm:"column:name"`
+	Status bool   `gorm:"column:status;default:true"` // false if deleted
 	BaseModel
 }
 
@@ -27,15 +26,13 @@ func (authorModel *Author) CreateAuthor(db *gorm.DB) (authorID int64, err error)
 func GetOneAuthor(db *gorm.DB, id int64) (*Author, error) {
 	author := &Author{}
 	result := db.Unscoped().Where("id=?", id).First(author)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil, fmt.Errorf("author not found with ID : %d : %v", id, result.Error)
+	// if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	// 	return nil, fmt.Errorf("author not found with ID : %d : %v", id, result.Error)
 
-	}
-
+	// }
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
 	if !author.Status {
 		return nil, fmt.Errorf("author with ID : %d already deleted", id)
 	}
@@ -44,15 +41,17 @@ func GetOneAuthor(db *gorm.DB, id int64) (*Author, error) {
 }
 
 func DeleteAuthor(db *gorm.DB, id, userID int64) error {
-	author := &Author{}
-	result := db.Where("id=?", id).Delete(author)
-	if result.Error != nil {
-		return result.Error
-	}
+	// author := &Author{}
+	// result := db.Where("id=?", id).Delete(author)
+	// if result.Error != nil {
+	// 	return result.Error
+	// }
+
 	// Update status to false and deleted by
 	updates := map[string]interface{}{
 		"status":     false,
 		"deleted_by": userID,
+		"deleted_at": time.Now().UTC(),
 	}
 	updateResult := db.Table("authors").Where("id=?", id).Updates(updates)
 	if updateResult.Error != nil {

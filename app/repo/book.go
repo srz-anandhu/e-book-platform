@@ -61,15 +61,16 @@ func UpdateBook(db *gorm.DB, id int64, title, content string, userID, authorID i
 }
 
 func DeleteBook(db *gorm.DB, id, userID int64) error {
-	book := &Book{}
-	result := db.Where("id=? AND status IN (1,2)", id).Delete(book)
-	if result.Error != nil {
-		return result.Error
-	}
+	// book := &Book{}
+	// result := db.Where("id=? AND status IN (1,2)", id).Delete(book)
+	// if result.Error != nil {
+	// 	return result.Error
+	// }
 
-	updateResult := db.Where("id=?", id).Updates(map[string]interface{}{
+	updateResult := db.Table("books").Where("id=? AND status IN (1,2)", id).Updates(map[string]interface{}{
 		"status":     3,
 		"deleted_by": userID,
+		"deleted_at": time.Now().UTC(),
 	})
 	if updateResult.Error != nil {
 		return updateResult.Error

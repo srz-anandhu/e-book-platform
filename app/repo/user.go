@@ -54,18 +54,21 @@ func GetOneUser(db *gorm.DB, id int64) (*User, error) {
 }
 
 func DeleteUser(db *gorm.DB, id int64) error {
-	user := &User{}
+	// user := &User{}
 
-	result := db.Where("id=?", id).Delete(user)
+	// result := db.Where("id=?", id).Delete(user)
 
-	if errors.Is(result.Error, gorm.ErrInvalidData) {
-		return result.Error
-	} else if result.Error != nil {
-		return result.Error
-	}
+	// if errors.Is(result.Error, gorm.ErrInvalidData) {
+	// 	return result.Error
+	// } else if result.Error != nil {
+	// 	return result.Error
+	// }
 
 	// update is_deleted field to true
-	updateResult := db.Table("users").Where("id=?", id).Update("is_deleted", true)
+	updateResult := db.Table("users").Where("id=?", id).Updates(map[string]interface{}{
+		"is_deleted": true,
+		"deleted_at": time.Now().UTC(),
+	})
 	if updateResult.Error != nil {
 		return updateResult.Error
 	}
