@@ -4,22 +4,29 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-
+	"os"
+	_"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-const (
-	user     = "postgres"
-	password = "password"
-	host     = "localhost"
-	port     = 5432
-	dbname   = "ebook"
-)
+// const (
+// 	user     = "postgres"
+// 	password = "password"
+// 	host     = "localhost"
+// 	port     = 5432
+// 	dbname   = "ebook"
+// )
 
 func ConnectDB() (*gorm.DB, *sql.DB, error) {
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbname := os.Getenv("DB_NAME")
+
 	// postgres://postgres:password@localhost:5432/ebook?sslmode=disable
-	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", user, password, host, port, dbname)
+	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable", user, password, host, port, dbname)
 	gDb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to connect database : %v", err)

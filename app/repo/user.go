@@ -9,8 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
-
 type User struct {
 	ID        int64          `gorm:"primaryKey"`
 	Mail      string         `gorm:"column:mail;unique;not null"`
@@ -22,6 +20,7 @@ type User struct {
 	UpdatedAt time.Time      `gorm:"column:updated_at;autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at"`
 	DeletedBy *int64         `gorm:"column:deleted_by"`
+	Active    string         `gorm:"column:active"`
 }
 
 func (userModel *User) CreateUser(db *gorm.DB) (userID int64, err error) {

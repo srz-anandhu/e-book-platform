@@ -1,31 +1,34 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"ebook/cmd"
 
-	gdb "ebook/app/database"
-	"ebook/app/repo"
+	_ "github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	cmd.Execute()
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
-	db, sqlDb, err := gdb.ConnectDB()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// db, sqlDb, err := gdb.ConnectDB()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	// migrating models(User, Author, Book)
-	if err := gdb.AutoMigrateModels(db); err != nil {
-		log.Fatal(err)
-	}
+	// if err := gdb.AutoMigrateModels(db); err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	defer func() {
-		sqlDb.Close()
-		fmt.Println("\n Db connection closed..")
-	}()
+	// defer func() {
+	// 	sqlDb.Close()
+	// 	fmt.Println("\n Db connection closed..")
+	// }()
 	// User creation
 	// u := repo.User{
 
@@ -73,9 +76,10 @@ func main() {
 
 	// Author Creation
 	// a := repo.Author{
-	// 	Name: "testauthor333",
-	// 	CreatedBy: 18, // UserID
-	// 	UpdatedBy: 21, // UserID
+	// 	Name: "testauthor777",
+	// 	BaseModel: repo.BaseModel{
+	// 		CreatedBy: 18,
+	// 	},
 	// }
 
 	// authorID, err := a.CreateAuthor(db)
@@ -98,7 +102,7 @@ func main() {
 	// if err != nil {
 	// 	fmt.Printf("can't delete author due to : %v", err)
 	// }
-	
+
 	// Update author
 	// err = repo.UpdateAuthor(db, "updatedauthorname", 7, 18) // Authorname, authorID, userID
 	// if err != nil {
@@ -114,7 +118,6 @@ func main() {
 	// for _, author := range authors {
 	// 	fmt.Printf(" ID : %d\n Author Name : %s\n CreatedBy : %d\n CreatedAt : %s\n UpdatedAt : %s\n", author.ID, author.Name, author.CreatedBy, author.CreatedAt, author.UpdatedAt)
 	// }
-
 
 	// Book Creation
 	// b := repo.Book{
@@ -133,7 +136,7 @@ func main() {
 	// 	return
 	// }
 	// fmt.Printf("book created with ID : %d", bookID)
-	
+
 	// Get One Book
 	// book, err := repo.GetOneBook(db, 3)
 	// if err != nil {
@@ -143,10 +146,9 @@ func main() {
 	//fmt.Printf(" ID: %d\n Title: %s\n Content: %s\n AuthorID: %d\n CreatedBy: %d\n CreatedAt: %s\n UpdatedAt: %s\n UpdatedBy: %d\n DeletedAt: %v\n DeletedBy: %d", book.ID, book.Title, book.Content, book.AuthorID, book.CreatedBy, book.CreatedAt, book.UpdatedAt, book.UpdatedBy, book.DeletedAt, book.DeletedBy)
 
 	// Update Book
-	err = repo.UpdateBook(db, 3, "updated title", "updated content", 18, 6, 1) // userID, authorID, status
-	if err != nil {
-		log.Printf("can't update book due to : %v", err)
-	}
+	// err = repo.UpdateBook(db, 3, "updated title", "updated content", 18, 6, 1) // userID, authorID, status
+	// if err != nil {
+	// 	log.Printf("can't update book due to : %v", err)
+	// }
 
 }
-
