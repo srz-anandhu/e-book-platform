@@ -5,10 +5,15 @@ import (
 	"net/http"
 )
 
-type helloWorldHandler struct{
+// type helloWorldHandler struct{
 	
+// }
+
+// func (h *helloWorldHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintf(w, "hey")
+// }
+
+func DemoHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "called demo handler")
 }
 
-func (h *helloWorldHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hey")
-}

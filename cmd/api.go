@@ -5,6 +5,8 @@ import (
 
 	"ebook/pkg/api"
 
+	"ebook/app"
+
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +29,8 @@ var apiCmd = &cobra.Command{
 
 func startAPI(*cobra.Command, []string) {
 	// fmt.Println("hellooo...")
-	api.Start()
+	r := app.APIRouter()
+	api.Start(r)
 
 }
 

@@ -3,6 +3,7 @@ module ebook
 go 1.22.4
 
 require (
+	github.com/go-chi/chi/v5 v5.2.0
 	github.com/lib/pq v1.10.9
 	github.com/spf13/cobra v1.8.1
 	gorm.io/driver/postgres v1.5.11

@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/go-chi/chi/v5"
 )
 
 const (
@@ -25,10 +27,11 @@ const (
 	// DefaultIdleTimeOut is the write deadline,
 	DefaultIdleTimeOut = 60 * time.Second
 
+	// Shutdown timeout
 	ShutdownTimeout = 5 * time.Second
 )
 
-func Start() {
+func Start(r chi.Router) {
 
 	server := http.Server{
 		Addr:              ":8080",
@@ -36,7 +39,7 @@ func Start() {
 		ReadTimeout:       DefaultReadTimeOut,
 		WriteTimeout:      DefaultWriteTimeOut,
 		IdleTimeout:       DefaultIdleTimeOut,
-		//Handler:           nil,
+		Handler:           r,
 	}
 	StartHTTPServer(&server)
 
