@@ -1,9 +1,9 @@
 package repo
 
 import (
+	"ebook/app/dto"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -23,84 +23,90 @@ type User struct {
 	Active    string         `gorm:"column:active"`
 }
 
-func (userModel *User) CreateUser(db *gorm.DB) (userID int64, err error) {
-	result := db.Create(&userModel)
+type UserRepo interface {
+	CreateUser(userReq *dto.UserCreateRequest) (int64, error)
+	GetUser(id int) (userResp *dto.UserResponse, err error)
+	DeleteUser(id int) error
+	UpdateUser(updateReq *dto.UserUpdateRequest) error
+	GetAllUsers() ([]*dto.UserResponse, error)
+}
+
+type UserRepoImpl struct {
+	db *gorm.DB
+}
+
+// For checking implementation of Repo interface
+var _ UserRepo = (*UserRepoImpl)(nil)
+
+func NewUserRepo(db *gorm.DB) UserRepo {
+	return &UserRepoImpl{
+		db: db,
+	}
+}
+
+var user *User
+
+func (r *UserRepoImpl) CreateUser(userReq *dto.UserCreateRequest) (int64, error) {
+	result := r.db.Create(&user)
 
 	if result.Error != nil {
 		return 0, result.Error
 	}
-
-	return userModel.ID, nil
+	return user.ID, nil
 }
 
-func GetOneUser(db *gorm.DB, id int64) (*User, error) {
-	user := &User{}
-
-	result := db.Unscoped().Where("id = ?", id).First(user)
+func (r *UserRepoImpl) GetUser(id int) (userResp *dto.UserResponse, err error) {
+	userResp = &dto.UserResponse{}
+	result := r.db.Unscoped().Where("id = ?", id).First(userResp)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 
-		return nil, fmt.Errorf("user not found with ID=%d due to : %v", id, result.Error)
+		return nil, result.Error
 
 	} else if result.Error != nil {
 		return nil, result.Error
 	}
 
-	if user.IsDeleted {
-		return nil, fmt.Errorf("user with ID : %d already deleted", id)
+	if userResp.IsDeleted {
+		return nil, fmt.Errorf("user with id %d is marked as deleted", id)
 	}
-
-	return user, nil
+	return userResp, nil
 }
 
-func DeleteUser(db *gorm.DB, id int64) error {
-	// user := &User{}
-
-	// result := db.Where("id=?", id).Delete(user)
-
-	// if errors.Is(result.Error, gorm.ErrInvalidData) {
-	// 	return result.Error
-	// } else if result.Error != nil {
-	// 	return result.Error
-	// }
-
-	// update is_deleted field to true
-	updateResult := db.Table("users").Where("id=?", id).Updates(map[string]interface{}{
-		"is_deleted": true,
+// soft delete
+func (r *UserRepoImpl) DeleteUser(id int) error {
+	updateResult := r.db.Table("users").Where("id = ? AND is_deleted = ?", id, false).Updates(map[string]interface{}{
 		"deleted_at": time.Now().UTC(),
+		"is_deleted": true,
 	})
 	if updateResult.Error != nil {
 		return updateResult.Error
 	}
-
-	log.Println("user deleted successfully...")
 	return nil
 }
 
-func UpdateUser(db *gorm.DB, id int64, newPassword string) error {
-	result := db.Table("users").Where("id=? AND is_deleted=?", id, false).Updates(map[string]interface{}{
-		"password":   newPassword,
+func (r *UserRepoImpl) UpdateUser(updateReq *dto.UserUpdateRequest) error {
+	result := r.db.Table("users").Where("id = ? AND is_deleted = ?", updateReq.ID, false).Updates(map[string]interface{}{
+		"username":   updateReq.NewUsername,
+		"mail":       updateReq.NewMail,
+		"password":   updateReq.NewPassword,
 		"updated_at": time.Now().UTC(),
 	})
 
 	if result.Error != nil {
 		return result.Error
 	}
-	// Check if any rows were updated
+	// check if any rows were affected
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("no active user found with ID %d to update", id)
+		return fmt.Errorf("no active user found with ID %d to update", updateReq.ID)
 	}
-
-	log.Println("user password updated successfully..")
 	return nil
 }
 
-func GetAllUsers(db *gorm.DB) ([]*User, error) {
-	var user []*User
-	result := db.Where("is_deleted", false).Find(&user)
-
+func (r *UserRepoImpl) GetAllUsers() ([]*dto.UserResponse, error) {
+	var user []*dto.UserResponse
+	result := r.db.Where("is_deleted", false).Find(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-
 	return user, nil
 }
