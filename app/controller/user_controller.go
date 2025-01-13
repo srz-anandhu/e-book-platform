@@ -2,7 +2,8 @@ package controller
 
 import (
 	"ebook/app/service"
-	"log"
+	"ebook/pkg/api"
+	"ebook/pkg/e"
 	"net/http"
 )
 
@@ -25,8 +26,9 @@ var _ UserController = (*UserControllerImpl)(nil)
 func (c *UserControllerImpl) GetOne(w http.ResponseWriter, r *http.Request) {
 	userResp, err := c.userService.GetUser(r)
 	if err != nil {
-		log.Printf("cant get user due to : %v", err)
+		httpErr := e.NewAPIError(err, "can't get user")
+		api.Fail(w, httpErr.StatusCode, httpErr.Code, httpErr.Message, err.Error())
 		return
 	}
-	log.Println(userResp)
+	api.Success(w, http.StatusOK, userResp)
 }
