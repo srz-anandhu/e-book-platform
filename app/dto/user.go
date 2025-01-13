@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	validator "github.com/go-playground/validator/v10"
 )
 
 type UserResponse struct {
@@ -33,7 +34,13 @@ func (u *UserRequest) Parse(r *http.Request) error {
 	return nil
 }
 
-// ToDo : validation
+func (u *UserRequest) Validate() error {
+	validate := validator.New()
+	if err := validate.Struct(u); err != nil {
+		return err
+	}
+	return nil
+}
 
 type UserCreateRequest struct {
 	Username string `json:"username" validate:"required"`

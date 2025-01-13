@@ -15,6 +15,9 @@ type Author struct {
 	BaseModel
 }
 
+type AuthorRepo interface {
+}
+
 func (authorModel *Author) CreateAuthor(db *gorm.DB) (authorID int64, err error) {
 	result := db.Create(&authorModel)
 	if result.Error != nil {
