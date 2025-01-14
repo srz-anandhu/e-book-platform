@@ -20,7 +20,7 @@ type User struct {
 	UpdatedAt time.Time      `gorm:"column:updated_at;autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at"`
 	DeletedBy *int64         `gorm:"column:deleted_by"`
-	Active    string         `gorm:"column:active"`
+	//Active    string         `gorm:"column:active"`
 }
 
 type UserRepo interface {
