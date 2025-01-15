@@ -1,8 +1,8 @@
 package repo
 
 import (
+	"ebook/app/dto"
 	"fmt"
-	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -17,35 +17,58 @@ type Book struct {
 	BaseModel
 }
 
-func (bookModel *Book) CreateBook(db *gorm.DB) (bookID int64, err error) {
-	result := db.Create(&bookModel)
-	if result.Error != nil {
-		return 0, result.Error
-	}
-	return bookModel.ID, nil
+type BookRepo interface {
+	GetBook(id int) (*dto.BookResponse, error)
+	CreateBook(*dto.BookCreateRequest) (int64, error)
+	UpdateBook(bookUpdateReq *dto.BookUpdateRequest) error
+	DeleteBook(bookDeleteReq *dto.BookDeleteRequest) error
+	GetAllBooks() ([]*dto.BookResponse, error)
 }
 
-func GetOneBook(db *gorm.DB, id int64) (*Book, error) {
-	book := &Book{}
-	result := db.Unscoped().Where("id=? AND status IN (1,2)", id).First(book)
+type BookRepoImpl struct {
+	db *gorm.DB
+}
+
+// For checking implementation of BookRepi interface
+var _ BookRepo = (*BookRepoImpl)(nil)
+
+func NewBookRepo(db *gorm.DB) BookRepo {
+	return &BookRepoImpl{
+		db: db,
+	}
+}
+
+func (r *BookRepoImpl) GetBook(id int) (*dto.BookResponse, error) {
+	bookRes := &dto.BookResponse{}
+	result := r.db.Unscoped().Where("id=? AND status IN (1,2)", id).First(bookRes)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	if book.Status == 3 {
+	if bookRes.Status == 3 {
 		return nil, fmt.Errorf("book was deleted")
 	}
 
-	return book, nil
+	return bookRes, nil
 }
 
-func UpdateBook(db *gorm.DB, id int64, title, content string, userID, authorID int64, status int) error {
-	result := db.Table("books").Where("id=? AND status IN (1,2)", id).Updates(map[string]interface{}{
-		"title":      title,
-		"content":    content,
-		"author_id":  authorID,
-		"updated_by": userID,
-		"status":     status,
+var book *Book
+
+func (r *BookRepoImpl) CreateBook(*dto.BookCreateRequest) (int64, error) {
+	result := r.db.Create(&book)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return book.ID, nil
+}
+
+func (r *BookRepoImpl) UpdateBook(bookUpdateReq *dto.BookUpdateRequest) error {
+	result := r.db.Table("books").Where("id=? AND status IN (1,2)", bookUpdateReq.ID).Updates(map[string]interface{}{
+		"title":      bookUpdateReq.Title,
+		"content":    bookUpdateReq.Content,
+		"author_id":  bookUpdateReq.AuthorID,
+		"updated_by": bookUpdateReq.UpdatedBy,
+		"status":     bookUpdateReq.Status,
 		"updated_at": time.Now().UTC(),
 	})
 
@@ -54,34 +77,27 @@ func UpdateBook(db *gorm.DB, id int64, title, content string, userID, authorID i
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("no book found with ID : %d to update", id)
+		return fmt.Errorf("no book found with ID : %d to update", bookUpdateReq.ID)
 	}
-	log.Printf("Book updated successfully by user : %d", userID)
 	return nil
 }
 
-func DeleteBook(db *gorm.DB, id, userID int64) error {
-	// book := &Book{}
-	// result := db.Where("id=? AND status IN (1,2)", id).Delete(book)
-	// if result.Error != nil {
-	// 	return result.Error
-	// }
-
-	updateResult := db.Table("books").Where("id=? AND status IN (1,2)", id).Updates(map[string]interface{}{
+func (r *BookRepoImpl) DeleteBook(bookDeleteReq *dto.BookDeleteRequest) error {
+	updateResult := r.db.Table("books").Where("id=? AND status IN (1,2)", bookDeleteReq.ID).Updates(map[string]interface{}{
 		"status":     3,
-		"deleted_by": userID,
+		"deleted_by": bookDeleteReq.DeletedBy,
 		"deleted_at": time.Now().UTC(),
 	})
 	if updateResult.Error != nil {
 		return updateResult.Error
 	}
-	log.Printf("book deleted successfully by user : %d", userID)
+
 	return nil
 }
 
-func GetAllBooks(db *gorm.DB) ([]*Book, error) {
-	var books []*Book
-	result := db.Where("status IN (1,2)").Find(&books)
+func (r *BookRepoImpl) GetAllBooks() ([]*dto.BookResponse, error) {
+	var books []*dto.BookResponse
+	result := r.db.Where("status IN (1,2)").Find(&books)
 	if result.Error != nil {
 		return nil, result.Error
 	}

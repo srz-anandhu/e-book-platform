@@ -70,6 +70,7 @@ type BookUpdateRequest struct {
 	Status    int    `validate:"required"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
+	AuthorID  int    `json:"author_id"`
 	UpdatedBy int    `json:"updated_by" validate:"required"` // User.ID
 }
 
@@ -97,7 +98,7 @@ func (b *BookUpdateRequest) Validate() error {
 }
 
 type BookDeleteRequest struct {
-	ID int `validate:"required"`
+	ID        int `validate:"required"`
 	DeletedBy int `validate:"required"` // User.ID
 }
 
