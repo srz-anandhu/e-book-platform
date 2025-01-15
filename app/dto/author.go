@@ -17,7 +17,7 @@ type AuthorResponse struct {
 	DeleteInfoResponse
 }
 
-// To get and delete an Author
+// To get an Author
 type AuthorRequest struct {
 	ID int `validate:"required"`
 }
