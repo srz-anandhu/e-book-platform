@@ -3,6 +3,7 @@ package service
 import (
 	"ebook/app/dto"
 	"ebook/app/repo"
+	"ebook/pkg/e"
 	"net/http"
 )
 
@@ -29,14 +30,14 @@ func NewBookService(bookRepo repo.BookRepo) BookService {
 func (s *BookServiceImpl) GetBook(r *http.Request) (*dto.BookResponse, error) {
 	req := &dto.BookRequest{}
 	if err := req.Parse(r); err != nil {
-		return nil, err
+		return nil, e.NewError(e.ErrInvalidRequest, "can't parse book request", err)
 	}
 	if err := req.Validate(); err != nil {
-		return nil, err
+		return nil, e.NewError(e.ErrValidateRequest, "can't validate book request", err)
 	}
 	result, err := s.bookRepo.GetBook(req.ID)
 	if err != nil {
-		return nil, err
+		return nil, e.NewError(e.ErrInternalServer, "can't get book", err)
 	}
 
 	var book dto.BookResponse
@@ -58,14 +59,14 @@ func (s *BookServiceImpl) GetBook(r *http.Request) (*dto.BookResponse, error) {
 func (s *BookServiceImpl) CreateBook(r *http.Request) (int64, error) {
 	body := &dto.BookCreateRequest{}
 	if err := body.Parse(r); err != nil {
-		return 0, err
+		return 0, e.NewError(e.ErrDecodeRequestBody, "can't decode book create request", err)
 	}
 	if err := body.Validate(); err != nil {
-		return 0, err
+		return 0, e.NewError(e.ErrValidateRequest, "can't validate book request", err)
 	}
 	bookID, err := s.bookRepo.CreateBook(body)
 	if err != nil {
-		return 0, err
+		return 0, e.NewError(e.ErrInternalServer, "can't create book", err)
 	}
 
 	return bookID, nil
@@ -74,13 +75,13 @@ func (s *BookServiceImpl) CreateBook(r *http.Request) (int64, error) {
 func (s *BookServiceImpl) UpdateBook(r *http.Request) error {
 	body := &dto.BookUpdateRequest{}
 	if err := body.Parse(r); err != nil {
-		return err
+		return e.NewError(e.ErrDecodeRequestBody, "can't decode book update request", err)
 	}
 	if err := body.Validate(); err != nil {
-		return err
+		return e.NewError(e.ErrValidateRequest, "can't validate book update request", err)
 	}
 	if err := s.bookRepo.UpdateBook(body); err != nil {
-		return err
+		return e.NewError(e.ErrInternalServer, "can't update book", err)
 	}
 
 	return nil
@@ -89,13 +90,13 @@ func (s *BookServiceImpl) UpdateBook(r *http.Request) error {
 func (s *BookServiceImpl) DeleteBook(r *http.Request) error {
 	body := &dto.BookDeleteRequest{}
 	if err := body.Parse(r); err != nil {
-		return err
+		return e.NewError(e.ErrInvalidRequest, "book delete request parse error", err)
 	}
 	if err := body.Validate(); err != nil {
-		return err
+		return e.NewError(e.ErrInvalidRequest, "book delete request validate error", err)
 	}
 	if err := s.bookRepo.DeleteBook(body); err != nil {
-		return err
+		return e.NewError(e.ErrInternalServer, "can't delete book", err)
 	}
 
 	return nil
@@ -104,7 +105,7 @@ func (s *BookServiceImpl) DeleteBook(r *http.Request) error {
 func (s *BookServiceImpl) GetAllBooks() ([]*dto.BookResponse, error) {
 	results, err := s.bookRepo.GetAllBooks()
 	if err != nil {
-		return nil, err
+		return nil, e.NewError(e.ErrInternalServer, "can't get all books", err)
 	}
 
 	var books []*dto.BookResponse
