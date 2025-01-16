@@ -3,6 +3,7 @@ package service
 import (
 	"ebook/app/dto"
 	"ebook/app/repo"
+	"ebook/pkg/e"
 	"net/http"
 )
 
@@ -58,14 +59,14 @@ func (s *AuthorServiceImpl) CreateAuthor(r *http.Request) (int64, error) {
 	body := &dto.AuthorCreateRequest{}
 
 	if err := body.Parse(r); err != nil {
-		return 0, err
+		return 0, e.NewError(e.ErrDecodeRequestBody, "can't decode author create request", err)
 	}
 	if err := body.Validate(); err != nil {
-		return 0, err
+		return 0, e.NewError(e.ErrValidateRequest, "can't validate author create request", err)
 	}
 	authorID, err := s.authorRepo.CreateAuthor(body)
 	if err != nil {
-		return 0, err
+		return 0, e.NewError(e.ErrInternalServer, "can't create author", err)
 	}
 	return authorID, nil
 }
@@ -74,13 +75,13 @@ func (s *AuthorServiceImpl) UpdateAuthor(r *http.Request) error {
 	body := &dto.AuthorUpdateRequest{}
 
 	if err := body.Parse(r); err != nil {
-		return err
+		return e.NewError(e.ErrDecodeRequestBody, "can't decode author update request", err)
 	}
 	if err := body.Validate(); err != nil {
-		return err
+		return e.NewError(e.ErrValidateRequest, "can't validate author update request", err)
 	}
 	if err := s.authorRepo.UpdateAuthor(body); err != nil {
-		return err
+		return e.NewError(e.ErrInternalServer, "can't update author", err)
 	}
 	return nil
 }
@@ -89,13 +90,13 @@ func (s *AuthorServiceImpl) DeleteAuthor(r *http.Request) error {
 	body := &dto.AuthorDeleteReq{}
 
 	if err := body.Parse(r); err != nil {
-		return err
+		return e.NewError(e.ErrInvalidRequest, "author delete request parse error", err)
 	}
 	if err := body.Validate(); err != nil {
-		return err
+		return e.NewError(e.ErrValidateRequest, "author delete request validate error", err)
 	}
 	if err := s.authorRepo.DeleteAuthor(body); err != nil {
-		return err
+		return e.NewError(e.ErrInternalServer, "can't delete author", err)
 	}
 	return nil
 }
@@ -103,7 +104,7 @@ func (s *AuthorServiceImpl) DeleteAuthor(r *http.Request) error {
 func (s *AuthorServiceImpl) GetAllAuthors() ([]*dto.AuthorResponse, error) {
 	results, err := s.authorRepo.GetAllAuthors()
 	if err != nil {
-		return nil, err
+		return nil, e.NewError(e.ErrInternalServer, "can't get all authors", err)
 	}
 	var authors []*dto.AuthorResponse
 
