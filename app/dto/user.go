@@ -44,9 +44,10 @@ func (u *UserRequest) Validate() error {
 }
 
 type UserCreateRequest struct {
+	ID       int    `json:"id"`
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password"`
-	Mail     string `json:"mail" validate:"required,mail"`
+	Mail     string `json:"mail" validate:"required"`
 }
 
 func (u *UserCreateRequest) Parse(r *http.Request) error {

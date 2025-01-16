@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 
+	"ebook/app/database"
 	"ebook/pkg/api"
 
 	"ebook/app"
@@ -28,8 +29,14 @@ var apiCmd = &cobra.Command{
 }
 
 func startAPI(*cobra.Command, []string) {
-	// fmt.Println("hellooo...")
-	r := app.APIRouter()
+	
+	gormDB, _, err := database.ConnectDB()
+	if err != nil {
+		log.Fatalf("couldn't connect database..")
+	}
+
+
+	r := app.APIRouter(gormDB)
 	api.Start(r)
 
 }

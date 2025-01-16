@@ -17,11 +17,11 @@ type Author struct {
 }
 
 type AuthorRepo interface {
-	GetAuthor(id int) (*dto.AuthorResponse, error)
-	CreateAuthor(*dto.AuthorCreateRequest) (int64, error)
+	GetAuthor(id int) (*Author, error)
+	CreateAuthor(authorReq *dto.AuthorCreateRequest) (int64, error)
 	UpdateAuthor(updateReq *dto.AuthorUpdateRequest) error
 	DeleteAuthor(deleteReq *dto.AuthorDeleteReq) error
-	GetAllAuthors() ([]*dto.AuthorResponse, error)
+	GetAllAuthors() ([]*Author, error)
 }
 
 type AuthorRepoImpl struct {
@@ -37,8 +37,8 @@ func NewAuthorRepo(db *gorm.DB) AuthorRepo {
 	}
 }
 
-func (r *AuthorRepoImpl) GetAuthor(id int) (*dto.AuthorResponse, error) {
-	authorResp := &dto.AuthorResponse{}
+func (r *AuthorRepoImpl) GetAuthor(id int) (*Author, error) {
+	authorResp := &Author{}
 	result := r.db.Unscoped().Where("id = ?", id).First(authorResp)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
@@ -51,9 +51,12 @@ func (r *AuthorRepoImpl) GetAuthor(id int) (*dto.AuthorResponse, error) {
 	return authorResp, nil
 }
 
-var author *Author
+func (r *AuthorRepoImpl) CreateAuthor(authorReq *dto.AuthorCreateRequest) (int64, error) {
+	author := &Author{
+		ID:   int64(authorReq.ID),
+		Name: authorReq.Name,
+	}
 
-func (r *AuthorRepoImpl) CreateAuthor(*dto.AuthorCreateRequest) (int64, error) {
 	result := r.db.Create(&author)
 	if result.Error != nil {
 		return 0, result.Error
@@ -93,8 +96,8 @@ func (r *AuthorRepoImpl) DeleteAuthor(deleteReq *dto.AuthorDeleteReq) error {
 	return nil
 }
 
-func (r *AuthorRepoImpl) GetAllAuthors() ([]*dto.AuthorResponse, error) {
-	var authors []*dto.AuthorResponse
+func (r *AuthorRepoImpl) GetAllAuthors() ([]*Author, error) {
+	var authors []*Author
 	result := r.db.Where("status=?", true).Find(&authors)
 	if result.Error != nil {
 		return nil, result.Error

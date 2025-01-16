@@ -41,13 +41,13 @@ func (s *UserServiceImpl) GetUser(r *http.Request) (*dto.UserResponse, error) {
 	}
 	var user dto.UserResponse
 
-	user.ID = userResp.ID
+	user.ID = int(userResp.ID)
 	user.Username = userResp.Username
 	user.Mail = userResp.Mail
 	user.Password = userResp.Password
 	user.CreatedAt = userResp.CreatedAt
 	user.UpdatedAt = userResp.UpdatedAt
-	user.DeletedAt = userResp.DeletedAt
+	user.DeletedAt = userResp.DeletedAt.Time
 
 	return &user, nil
 }
@@ -105,18 +105,22 @@ func (s *UserServiceImpl) GetAllUsers() ([]*dto.UserResponse, error) {
 
 	for _, val := range result {
 
-		var user dto.UserResponse
+		user := &dto.UserResponse{
+			ID:        int(val.ID),
+			Username:  val.Username,
+			Password:  val.Password,
+			Mail:      val.Mail,
+			IsDeleted: val.IsDeleted,
+			CreateUpdateResponse: dto.CreateUpdateResponse{
+				CreatedAt: val.CreatedAt,
+				UpdatedAt: val.UpdatedAt,
+			},
+			DeleteInfoResponse: dto.DeleteInfoResponse{
+				DeletedAt: val.DeletedAt.Time,
+			},
+		}
 
-		user.ID = val.ID
-		user.Username = val.Username
-		user.Password = val.Password
-		user.Mail = val.Mail
-		user.CreatedAt = val.CreatedAt
-		user.UpdatedAt = val.UpdatedAt
-		user.IsDeleted = val.IsDeleted
-		user.DeletedAt = val.DeletedAt
-
-		users = append(users, &user)
+		users = append(users, user)
 	}
 	return users, nil
 }

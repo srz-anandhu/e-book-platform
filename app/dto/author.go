@@ -41,6 +41,7 @@ func (a *AuthorRequest) Validate() error {
 }
 
 type AuthorCreateRequest struct {
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 

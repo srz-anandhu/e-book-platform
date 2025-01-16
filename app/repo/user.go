@@ -25,10 +25,10 @@ type User struct {
 
 type UserRepo interface {
 	CreateUser(userReq *dto.UserCreateRequest) (int64, error)
-	GetUser(id int) (userResp *dto.UserResponse, err error)
+	GetUser(id int) (*User, error)
 	DeleteUser(id int) error
 	UpdateUser(updateReq *dto.UserUpdateRequest) error
-	GetAllUsers() ([]*dto.UserResponse, error)
+	GetAllUsers() ([]*User, error)
 }
 
 type UserRepoImpl struct {
@@ -44,9 +44,16 @@ func NewUserRepo(db *gorm.DB) UserRepo {
 	}
 }
 
-var user *User
+// var user *User
 
 func (r *UserRepoImpl) CreateUser(userReq *dto.UserCreateRequest) (int64, error) {
+	user := &User{
+		ID: int64(userReq.ID),
+		Username: userReq.Username,
+		Mail: userReq.Mail,
+		Password: userReq.Password,
+
+	}
 	result := r.db.Create(&user)
 
 	if result.Error != nil {
@@ -55,8 +62,8 @@ func (r *UserRepoImpl) CreateUser(userReq *dto.UserCreateRequest) (int64, error)
 	return user.ID, nil
 }
 
-func (r *UserRepoImpl) GetUser(id int) (userResp *dto.UserResponse, err error) {
-	userResp = &dto.UserResponse{}
+func (r *UserRepoImpl) GetUser(id int) (*User, error) {
+	userResp := &User{}
 	result := r.db.Unscoped().Where("id = ?", id).First(userResp)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 
@@ -102,8 +109,8 @@ func (r *UserRepoImpl) UpdateUser(updateReq *dto.UserUpdateRequest) error {
 	return nil
 }
 
-func (r *UserRepoImpl) GetAllUsers() ([]*dto.UserResponse, error) {
-	var user []*dto.UserResponse
+func (r *UserRepoImpl) GetAllUsers() ([]*User, error) {
+	var user []*User
 	result := r.db.Where("is_deleted", false).Find(&user)
 	if result.Error != nil {
 		return nil, result.Error

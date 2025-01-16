@@ -40,19 +40,20 @@ func (s *AuthorServiceImpl) GetAuthor(r *http.Request) (*dto.AuthorResponse, err
 	if err != nil {
 		return nil, err
 	}
-	var author dto.AuthorResponse
 
-	author.ID = resp.ID
+	author := &dto.AuthorResponse{}
+
+	author.ID = int(resp.ID)
 	author.Name = resp.Name
 	author.Status = resp.Status
 	author.CreatedAt = resp.CreatedAt
-	author.CreatedBy = resp.CreatedBy
+	author.CreatedBy = &resp.CreatedBy
 	author.UpdatedAt = resp.UpdatedAt
 	author.UpdatedBy = resp.UpdatedBy
-	author.DeletedAt = resp.DeletedAt
+	author.DeletedAt = resp.DeletedAt.Time
 	author.DeletedBy = resp.DeletedBy
 
-	return &author, nil
+	return author, nil
 }
 
 func (s *AuthorServiceImpl) CreateAuthor(r *http.Request) (int64, error) {
@@ -110,19 +111,23 @@ func (s *AuthorServiceImpl) GetAllAuthors() ([]*dto.AuthorResponse, error) {
 
 	for _, val := range results {
 
-		var author dto.AuthorResponse
+		author := &dto.AuthorResponse{
+			ID:     int(val.ID),
+			Name:   val.Name,
+			Status: val.Status,
+			CreateUpdateResponse: dto.CreateUpdateResponse{
+				CreatedBy: &val.CreatedBy,
+				CreatedAt: val.CreatedAt,
+				UpdatedAt: val.UpdatedAt,
+				UpdatedBy: val.UpdatedBy,
+			},
+			DeleteInfoResponse: dto.DeleteInfoResponse{
+				DeletedAt: val.DeletedAt.Time,
+				DeletedBy: val.DeletedBy,
+			},
+		}
 
-		author.ID = val.ID
-		author.Name = val.Name
-		author.Status = val.Status
-		author.CreatedBy = val.CreatedBy
-		author.CreatedAt = val.CreatedAt
-		author.UpdatedBy = val.UpdatedBy
-		author.UpdatedAt = val.UpdatedAt
-		author.DeletedBy = val.DeletedBy
-		author.DeletedAt = val.DeletedAt
-
-		authors = append(authors, &author)
+		authors = append(authors, author)
 	}
 
 	return authors, nil
