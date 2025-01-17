@@ -4,7 +4,10 @@ import (
 	"ebook/app/dto"
 	"ebook/app/repo"
 	"ebook/pkg/e"
+	"errors"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 type BookService interface {
@@ -37,6 +40,9 @@ func (s *BookServiceImpl) GetBook(r *http.Request) (*dto.BookResponse, error) {
 	}
 	result, err := s.bookRepo.GetBook(req.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, e.NewError(e.ErrResourceNotFound, "book not exist", err)
+		}
 		return nil, e.NewError(e.ErrInternalServer, "can't get book", err)
 	}
 

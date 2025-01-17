@@ -4,7 +4,10 @@ import (
 	"ebook/app/dto"
 	"ebook/app/repo"
 	"ebook/pkg/e"
+	"errors"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -37,6 +40,9 @@ func (s *UserServiceImpl) GetUser(r *http.Request) (*dto.UserResponse, error) {
 	}
 	userResp, err := s.userRepo.GetUser(req.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, e.NewError(e.ErrResourceNotFound, "no user exist", err)
+		}
 		return nil, e.NewError(e.ErrResourceNotFound, "can't get user", err)
 	}
 	var user dto.UserResponse

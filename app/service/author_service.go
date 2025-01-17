@@ -4,7 +4,10 @@ import (
 	"ebook/app/dto"
 	"ebook/app/repo"
 	"ebook/pkg/e"
+	"errors"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 type AuthorService interface {
@@ -38,6 +41,9 @@ func (s *AuthorServiceImpl) GetAuthor(r *http.Request) (*dto.AuthorResponse, err
 	}
 	resp, err := s.authorRepo.GetAuthor(req.ID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return nil, e.NewError(e.ErrResourceNotFound, "no author found", err)
+		}
 		return nil, err
 	}
 
