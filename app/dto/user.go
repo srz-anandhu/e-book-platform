@@ -14,7 +14,7 @@ type UserResponse struct {
 	Mail      string `json:"mail"`
 	Username  string `json:"username"`
 	Password  string `json:"password"`
-	Salt      string `json:"salt"`
+//	Salt      string `json:"salt"`
 	IsDeleted bool   `json:"is_deleted"`
 	CreateUpdateResponse
 	DeleteInfoResponse
@@ -68,7 +68,7 @@ func (u *UserCreateRequest) Validate() error {
 type UserUpdateRequest struct {
 	ID          int    `validate:"required"`
 	NewUsername string `json:"username" validate:"required"`
-	NewMail     string `json:"mail" validate:"required,mail"`
+	NewMail     string `json:"mail" validate:"required"`
 	NewPassword string `json:"password"`
 }
 

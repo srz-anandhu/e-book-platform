@@ -18,11 +18,11 @@ type Book struct {
 }
 
 type BookRepo interface {
-	GetBook(id int) (*dto.BookResponse, error)
-	CreateBook(*dto.BookCreateRequest) (int64, error)
+	GetBook(id int) (*Book, error)
+	CreateBook(bookCreateReq *dto.BookCreateRequest) (int64, error)
 	UpdateBook(bookUpdateReq *dto.BookUpdateRequest) error
 	DeleteBook(bookDeleteReq *dto.BookDeleteRequest) error
-	GetAllBooks() ([]*dto.BookResponse, error)
+	GetAllBooks() ([]*Book, error)
 }
 
 type BookRepoImpl struct {
@@ -38,8 +38,8 @@ func NewBookRepo(db *gorm.DB) BookRepo {
 	}
 }
 
-func (r *BookRepoImpl) GetBook(id int) (*dto.BookResponse, error) {
-	bookRes := &dto.BookResponse{}
+func (r *BookRepoImpl) GetBook(id int) (*Book, error) {
+	bookRes := &Book{}
 	result := r.db.Unscoped().Where("id=? AND status IN (1,2)", id).First(bookRes)
 	if result.Error != nil {
 		return nil, result.Error
@@ -52,10 +52,19 @@ func (r *BookRepoImpl) GetBook(id int) (*dto.BookResponse, error) {
 	return bookRes, nil
 }
 
-var book *Book
 
-func (r *BookRepoImpl) CreateBook(*dto.BookCreateRequest) (int64, error) {
-	result := r.db.Create(&book)
+func (r *BookRepoImpl) CreateBook(bookCreateReq *dto.BookCreateRequest) (int64, error) {
+	book := &Book{
+		ID: int64(bookCreateReq.ID),
+		Title: bookCreateReq.Title,
+		Content: bookCreateReq.Content,
+		AuthorID: int64(bookCreateReq.AuthorID),
+		Status: bookCreateReq.Status,
+		BaseModel: BaseModel{
+			CreatedBy: bookCreateReq.CreatedBy,
+		},
+	}
+	result := r.db.Create(book)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -95,8 +104,8 @@ func (r *BookRepoImpl) DeleteBook(bookDeleteReq *dto.BookDeleteRequest) error {
 	return nil
 }
 
-func (r *BookRepoImpl) GetAllBooks() ([]*dto.BookResponse, error) {
-	var books []*dto.BookResponse
+func (r *BookRepoImpl) GetAllBooks() ([]*Book, error) {
+	var books []*Book
 	result := r.db.Where("status IN (1,2)").Find(&books)
 	if result.Error != nil {
 		return nil, result.Error

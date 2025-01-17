@@ -53,7 +53,7 @@ func (s *AuthorServiceImpl) GetAuthor(r *http.Request) (*dto.AuthorResponse, err
 	author.Name = resp.Name
 	author.Status = resp.Status
 	author.CreatedAt = resp.CreatedAt
-	author.CreatedBy = &resp.CreatedBy
+	author.CreatedBy = resp.CreatedBy
 	author.UpdatedAt = resp.UpdatedAt
 	author.UpdatedBy = resp.UpdatedBy
 	author.DeletedAt = resp.DeletedAt.Time
@@ -88,6 +88,9 @@ func (s *AuthorServiceImpl) UpdateAuthor(r *http.Request) error {
 		return e.NewError(e.ErrValidateRequest, "can't validate author update request", err)
 	}
 	if err := s.authorRepo.UpdateAuthor(body); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return e.NewError(e.ErrResourceNotFound, "author not found to update", err)
+		}
 		return e.NewError(e.ErrInternalServer, "can't update author", err)
 	}
 	return nil
@@ -103,6 +106,9 @@ func (s *AuthorServiceImpl) DeleteAuthor(r *http.Request) error {
 		return e.NewError(e.ErrValidateRequest, "author delete request validate error", err)
 	}
 	if err := s.authorRepo.DeleteAuthor(body); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return e.NewError(e.ErrResourceNotFound, "author not found to delete", err)
+		}
 		return e.NewError(e.ErrInternalServer, "can't delete author", err)
 	}
 	return nil
@@ -122,7 +128,7 @@ func (s *AuthorServiceImpl) GetAllAuthors() ([]*dto.AuthorResponse, error) {
 			Name:   val.Name,
 			Status: val.Status,
 			CreateUpdateResponse: dto.CreateUpdateResponse{
-				CreatedBy: &val.CreatedBy,
+				CreatedBy: val.CreatedBy,
 				CreatedAt: val.CreatedAt,
 				UpdatedAt: val.UpdatedAt,
 				UpdatedBy: val.UpdatedBy,

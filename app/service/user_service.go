@@ -82,6 +82,9 @@ func (s *UserServiceImpl) UpdateUser(r *http.Request) error {
 		return e.NewError(e.ErrValidateRequest, "can't validate user create request", err)
 	}
 	if err := s.userRepo.UpdateUser(body); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return e.NewError(e.ErrResourceNotFound, "user not found to update", err)
+		}
 		return e.NewError(e.ErrInternalServer, "can't update user", err)
 	}
 	return nil
@@ -96,6 +99,9 @@ func (s *UserServiceImpl) DeleteUser(r *http.Request) error {
 		return e.NewError(e.ErrValidateRequest, "user request validate error", err)
 	}
 	if err := s.userRepo.DeleteUser(req.ID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return e.NewError(e.ErrResourceNotFound, "user not found to delete", err)
+		}
 		return e.NewError(e.ErrDecodeRequestBody, "can't delete user", err)
 	}
 	return nil

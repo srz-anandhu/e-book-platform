@@ -87,6 +87,9 @@ func (s *BookServiceImpl) UpdateBook(r *http.Request) error {
 		return e.NewError(e.ErrValidateRequest, "can't validate book update request", err)
 	}
 	if err := s.bookRepo.UpdateBook(body); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return e.NewError(e.ErrResourceNotFound, "book not found to update", err)
+		}
 		return e.NewError(e.ErrInternalServer, "can't update book", err)
 	}
 
@@ -102,6 +105,9 @@ func (s *BookServiceImpl) DeleteBook(r *http.Request) error {
 		return e.NewError(e.ErrInvalidRequest, "book delete request validate error", err)
 	}
 	if err := s.bookRepo.DeleteBook(body); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return e.NewError(e.ErrResourceNotFound, "book not found to delete", err)
+		}
 		return e.NewError(e.ErrInternalServer, "can't delete book", err)
 	}
 

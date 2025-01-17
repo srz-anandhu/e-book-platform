@@ -43,11 +43,12 @@ func (b *BookRequest) Validate() error {
 }
 
 type BookCreateRequest struct {
+	ID        int    `json:"id"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	AuthorID  int    `json:"author_id"`
 	Status    int    `json:"status"`
-	CreatedBy int    `json:"created_by"`
+	CreatedBy *int    `json:"created_by"`
 }
 
 func (b *BookCreateRequest) Parse(r *http.Request) error {
