@@ -48,7 +48,7 @@ type BookCreateRequest struct {
 	Content   string `json:"content"`
 	AuthorID  int    `json:"author_id"`
 	Status    int    `json:"status"`
-	CreatedBy *int    `json:"created_by"`
+	CreatedBy *int   `json:"created_by"`
 }
 
 func (b *BookCreateRequest) Parse(r *http.Request) error {
@@ -67,8 +67,8 @@ func (b *BookCreateRequest) Validate() error {
 }
 
 type BookUpdateRequest struct {
-	ID        int    `validate:"required"`
-	Status    int    `validate:"required"`
+	ID        int    `json:"id" validate:"required"`
+	Status    int    `json:"status" validate:"required"`
 	Title     string `json:"title"`
 	Content   string `json:"content"`
 	AuthorID  int    `json:"author_id"`
@@ -100,7 +100,7 @@ func (b *BookUpdateRequest) Validate() error {
 
 type BookDeleteRequest struct {
 	ID        int `validate:"required"`
-	DeletedBy int `validate:"required"` // User.ID
+	DeletedBy int `json:"deleted_by" validate:"required"` // User.ID
 }
 
 func (b *BookDeleteRequest) Parse(r *http.Request) error {

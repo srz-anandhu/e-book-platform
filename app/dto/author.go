@@ -91,7 +91,7 @@ func (a *AuthorUpdateRequest) Validate() error {
 
 type AuthorDeleteReq struct {
 	ID        int `validate:"required"`
-	DeletedBy int `validate:"required"` // userID
+	DeletedBy int `json:"deleted_by" validate:"required"` // userID
 }
 
 func (a *AuthorDeleteReq) Parse(r *http.Request) error {
