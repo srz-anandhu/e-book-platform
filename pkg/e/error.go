@@ -5,17 +5,18 @@ import (
 	"strconv"
 )
 
-type WrapError struct {
-	ErrorCode int
-	Msg       string
-	RootCause error
-}
-
-// For client
+// For client (custom http error object used in controller layer)
 type HttpError struct {
 	StatusCode int
 	Code       int
 	Message    string
+}
+
+type WrapError struct {
+	ErrorCode int
+	Msg       string
+	RootCause error
+	
 }
 
 func (e *WrapError) Error() string {
@@ -48,8 +49,8 @@ func NewAPIError(err error, msg string) *HttpError {
 
 	httpErr := &HttpError{
 		StatusCode: GetHttpStatusCode(appErr.ErrorCode),
-		Code: appErr.ErrorCode,
-		Message: msg,
+		Code:       appErr.ErrorCode,
+		Message:    msg,
 	}
 	return httpErr
 }

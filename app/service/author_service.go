@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
@@ -39,9 +40,11 @@ func (s *AuthorServiceImpl) GetAuthor(r *http.Request) (*dto.AuthorResponse, err
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
+	log.Info().Msg("successfully completed validation N parse")
 	resp, err := s.authorRepo.GetAuthor(req.ID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Warn().Msg("record not found")
 			return nil, e.NewError(e.ErrResourceNotFound, "no author found", err)
 		}
 		return nil, err
@@ -59,6 +62,7 @@ func (s *AuthorServiceImpl) GetAuthor(r *http.Request) (*dto.AuthorResponse, err
 	author.DeletedAt = resp.DeletedAt.Time
 	author.DeletedBy = resp.DeletedBy
 
+	log.Info().Msgf("successfully retrieved author : %v", author)
 	return author, nil
 }
 
@@ -71,10 +75,14 @@ func (s *AuthorServiceImpl) CreateAuthor(r *http.Request) (int64, error) {
 	if err := body.Validate(); err != nil {
 		return 0, e.NewError(e.ErrValidateRequest, "can't validate author create request", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
+
 	authorID, err := s.authorRepo.CreateAuthor(body)
 	if err != nil {
 		return 0, e.NewError(e.ErrInternalServer, "can't create author", err)
 	}
+	log.Info().Msgf("successfully created author with id %d", authorID)
+
 	return authorID, nil
 }
 
@@ -87,12 +95,14 @@ func (s *AuthorServiceImpl) UpdateAuthor(r *http.Request) error {
 	if err := body.Validate(); err != nil {
 		return e.NewError(e.ErrValidateRequest, "can't validate author update request", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
 	if err := s.authorRepo.UpdateAuthor(body); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return e.NewError(e.ErrResourceNotFound, "author not found to update", err)
 		}
 		return e.NewError(e.ErrInternalServer, "can't update author", err)
 	}
+	log.Info().Msgf("successfully updated author with ID : %d", body.ID)
 	return nil
 }
 
@@ -105,12 +115,14 @@ func (s *AuthorServiceImpl) DeleteAuthor(r *http.Request) error {
 	if err := body.Validate(); err != nil {
 		return e.NewError(e.ErrValidateRequest, "author delete request validate error", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
 	if err := s.authorRepo.DeleteAuthor(body); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return e.NewError(e.ErrResourceNotFound, "author not found to delete", err)
 		}
 		return e.NewError(e.ErrInternalServer, "can't delete author", err)
 	}
+	log.Info().Msgf("successfully deleted author with ID : %d", body.ID)
 	return nil
 }
 
@@ -141,6 +153,6 @@ func (s *AuthorServiceImpl) GetAllAuthors() ([]*dto.AuthorResponse, error) {
 
 		authors = append(authors, author)
 	}
-
+	log.Info().Msg("successfully retrieved all authors")
 	return authors, nil
 }

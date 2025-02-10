@@ -13,9 +13,10 @@ func APIRouter(db *gorm.DB) chi.Router {
 
 	r := chi.NewRouter()
 
-	// r.Route("/", func(r chi.Router) {
-	// 	r.Get("/hello", api.DemoHandler)
-	// })
+
+	healthRepo := repo.NewHealthRepo(db)
+	healthService := service.NewHealthService(healthRepo)
+	healthController := controller.NewHealthController(healthService)
 
 	// User
 	userRepo := repo.NewUserRepo(db)
@@ -31,6 +32,10 @@ func APIRouter(db *gorm.DB) chi.Router {
 	bookRepo := repo.NewBookRepo(db)
 	bookService := service.NewBookService(bookRepo)
 	bookController := controller.NewBookController(bookService)
+
+	r.Route("/health", func(r chi.Router) {
+		r.Get("/", healthController.CheckHealth)
+	})
 
 	r.Route("/users", func(r chi.Router) {
 		r.Get("/", userController.GetAllUsers)

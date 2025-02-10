@@ -24,6 +24,9 @@ func ConnectDB() (*gorm.DB, *sql.DB, error) {
 		log.Fatalf("failed to connect database : %v", err)
 	}
 
+	if err := AutoMigrateModels(gDb); err != nil {
+		log.Fatalf("automigration err : %v", err)
+	}
 	// Getting SQL DB object
 	sqlDB, err := gDb.DB()
 	if err != nil {

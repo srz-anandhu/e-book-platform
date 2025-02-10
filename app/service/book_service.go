@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
@@ -38,9 +39,11 @@ func (s *BookServiceImpl) GetBook(r *http.Request) (*dto.BookResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, e.NewError(e.ErrValidateRequest, "can't validate book request", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
 	result, err := s.bookRepo.GetBook(req.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Warn().Msg("record not found")
 			return nil, e.NewError(e.ErrResourceNotFound, "book not exist", err)
 		}
 		return nil, e.NewError(e.ErrInternalServer, "can't get book", err)
@@ -58,7 +61,7 @@ func (s *BookServiceImpl) GetBook(r *http.Request) (*dto.BookResponse, error) {
 	book.UpdatedAt = result.UpdatedAt
 	book.DeletedBy = result.DeletedBy
 	book.DeletedBy = result.DeletedBy
-
+	log.Info().Msgf("successfully retrieved book with ID : %d", book.ID)
 	return &book, nil
 }
 
@@ -70,11 +73,12 @@ func (s *BookServiceImpl) CreateBook(r *http.Request) (int64, error) {
 	if err := body.Validate(); err != nil {
 		return 0, e.NewError(e.ErrValidateRequest, "can't validate book request", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
 	bookID, err := s.bookRepo.CreateBook(body)
 	if err != nil {
 		return 0, e.NewError(e.ErrInternalServer, "can't create book", err)
 	}
-
+	log.Info().Msgf("successfully created book with ID: %d", body.ID)
 	return bookID, nil
 }
 
@@ -86,13 +90,14 @@ func (s *BookServiceImpl) UpdateBook(r *http.Request) error {
 	if err := body.Validate(); err != nil {
 		return e.NewError(e.ErrValidateRequest, "can't validate book update request", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
 	if err := s.bookRepo.UpdateBook(body); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return e.NewError(e.ErrResourceNotFound, "book not found to update", err)
 		}
 		return e.NewError(e.ErrInternalServer, "can't update book", err)
 	}
-
+	log.Info().Msgf("successfully updated book with ID : %d", body.ID)
 	return nil
 }
 
@@ -104,13 +109,14 @@ func (s *BookServiceImpl) DeleteBook(r *http.Request) error {
 	if err := body.Validate(); err != nil {
 		return e.NewError(e.ErrInvalidRequest, "book delete request validate error", err)
 	}
+	log.Info().Msg("successfully completed validation N parsing")
 	if err := s.bookRepo.DeleteBook(body); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return e.NewError(e.ErrResourceNotFound, "book not found to delete", err)
 		}
 		return e.NewError(e.ErrInternalServer, "can't delete book", err)
 	}
-
+	log.Info().Msgf("successfully deleted book with ID: %d", body.ID)
 	return nil
 }
 
@@ -140,6 +146,6 @@ func (s *BookServiceImpl) GetAllBooks() ([]*dto.BookResponse, error) {
 
 		books = append(books, &book)
 	}
-
+	log.Info().Msg("successfully retrieved all books")
 	return books, nil
 }
